@@ -1,0 +1,13 @@
+.*.swp
+*.hi
+*.o
+midterm_report/midterm_report.aux
+midterm_report/midterm_report.bbl
+midterm_report/midterm_report.blg
+midterm_report/midterm_report.fdb_latexmk
+midterm_report/midterm_report.fls
+midterm_report/midterm_report.log
+midterm_report/midterm_report.pdf
+cabal.sandbox.config
+.cabal-sandbox/
+dist/
