@@ -66,8 +66,11 @@ cvxOptval = -29051
 -- TODO(mh): This test fails because primitives that generate implicit
 -- constraints are currently unsupported. When support is added for them, the
 -- test will be added back in. (2014-06-04)
---spec :: Spec
---spec =
+spec :: Spec
+spec =
+  describe "Placeholder test" $ do
+    it "placeholder description" $
+      True `shouldBe` True
 --  describe "Verify that HVX matches CVX for triple variable stress test" $ do
 --    it "Verify that HVX subgrad matches CVX for huber/berhu" $
 --      subgradOptval `shouldSatisfy` fpequalsApprox cvxOptval
