@@ -2,6 +2,7 @@
 
 module HVX
   ( Var
+  , Vars
   , Vex
   , Affine
   , Convex
@@ -33,7 +34,8 @@ module HVX
   , powBaseP1
   , powBaseP1InfEven
   , powBaseP1InfNotInt
-  -- Symbolic subgradient.
+  -- Evaluating expressions and their subgradients.
+  , evaluate
   , jacobianWrtVar
   -- Constructors for constraints.
   , leq
