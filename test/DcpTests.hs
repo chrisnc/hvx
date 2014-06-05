@@ -21,12 +21,17 @@ dcpTestsDir = "test" </> "DcpTests"
 -- Tests in which DCP rules are satisfied.
 dcpTestsThatShouldCompile :: [FilePath]
 dcpTestsThatShouldCompile = map (dcpTestsDir </>)
-  [ "ConvexNondecConvexNondecAllowed.hs" ]
+  [ "OkAffineAffine.hs"
+  , "OkConcaveNondecConcave.hs"
+  , "OkConvexNondecConvex.hs"
+  , "OkXAffine.hs" ]
 
 -- Tests in which DCP rules are not satisfied.
 dcpTestsThatShouldn'tCompile :: [FilePath]
 dcpTestsThatShouldn'tCompile = map (dcpTestsDir </>)
-  [ "ConvexNondecConcaveDisallowed.hs" ]
+  [ "NoAffineNonmonConcaveNondec.hs"
+  , "NoAffineNonmonConvexNondec.hs"
+  , "NoConvexNondecConcave.hs" ]
 
 showExitCodeAndPath :: Bool -> ExitCode -> FilePath -> String
 showExitCodeAndPath shouldPass code path = codeStr ++ " " ++ path

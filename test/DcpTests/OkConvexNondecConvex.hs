@@ -1,4 +1,4 @@
-module HVX.DcpTests.ConvexNondecConvexNondecAllowed where
+module HVX.DcpTests.OkConvexNondecConvex where
 
 import HVX
 
