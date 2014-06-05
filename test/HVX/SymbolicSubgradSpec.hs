@@ -13,9 +13,6 @@ import HVX.Internal.Primitives
 import HVX.Internal.TestUtil
 import HVX.Internal.SymbolicSubgrad
 
--- TODO(mh):  We should make sure to have huber tests during black box testing,
--- because it's very difficult to come up with invariants about them. (2014-05-27)
-
 main :: IO ()
 main = hspec spec
 
@@ -99,8 +96,6 @@ evaluateSpec = describe "evaluate" $ do
 jacobianWrtVarSpec :: Spec
 jacobianWrtVarSpec = describe "jacobianWrtVar" $ do
 
-  -- TODO(mh): wtf this should fail. Need to actually update random seed on
-  -- sample (2014-05-28)
   it "works with respect to a variable that doesn't occur in Expr." $
     forAll (pairsOf vectors vectors) $
       \(x, y) -> fpequalsMat

@@ -9,7 +9,7 @@ import Numeric.LinearAlgebra.Util (zeros)
 
 import HVX
 import HVX.Internal.Matrix
-import HVX.Internal.Util
+import HVX.Internal.TestUtil
 
 -- Problem definition.
 n = 4
@@ -35,7 +35,7 @@ constZeroVector = EConst $ zeros n 1
 subgradAns = subgradMinimize
   (hmax $ huber 3 (a *~ x +~ b) +~ berhu 1 (c *~ y +~ d))
   [x +~ y <=~ constZeroVector]
-  (decNonSumStep 10.0) 5000
+  (decNonSumStep 1.0) 100000
   [("x", zeros n 1), ("y", zeros n 1)]
 
 ellipsoidAns = ellipsoidMinimize
@@ -45,36 +45,22 @@ ellipsoidAns = ellipsoidMinimize
   1e-16 1e10
 
 (subgradVars, subgradOptval) = subgradAns
-subgradOptx = fromMaybe (error "wat") $ lookup "x" subgradVars
-subgradOpty = fromMaybe (error "wat") $ lookup "y" subgradVars
 
 (ellipsoidVars, ellipsoidOptval, ellipsoidUBound) = ellipsoidAns
-ellipsoidOptx = fromMaybe (error "wat") $ lookup "x" ellipsoidVars
-ellipsoidOpty = fromMaybe (error "wat") $ lookup "y" ellipsoidVars
 
 -- CVX's results.
 cvxOptval = 0.404882
-cvxOptx = (n><1) [-1.6137 ,-1.1202 ,0.7986 ,-0.7487 ]
-cvxOpty = (n><1) [0.2428 ,-0.0191 ,-0.7986 ,-1.0079 ]
+--cvxOptx = (n><1) [-1.6137 ,-1.1202 ,0.7986 ,-0.7487 ]
+--cvxOpty = (n><1) [0.2428 ,-0.0191 ,-0.7986 ,-1.0079 ]
 
 -- Verify that HVX matches CVX.
 spec :: Spec
 spec = do
-  describe "Verify that HVX subgrad matches CVX for huber/berhu" $ do
-    it "HVX's x should match CVX's x" $
-      subgradOptx `shouldSatisfy` fpequalsMat cvxOptx
-    it "HVX's y should match CVX's y" $
-      subgradOpty `shouldSatisfy` fpequalsMat cvxOpty
-    it "HVX's optval should match CVX's optval" $
-      subgradOptval `shouldSatisfy` fpequals cvxOptval
-
-  describe "Verify that HVX ellipsoid matches CVX for huber/berhu" $ do
-    it "HVX's x should match CVX's x" $
-      ellipsoidOptx `shouldSatisfy` fpequalsMat cvxOptx
-    it "HVX's y should match CVX's y" $
-      ellipsoidOpty `shouldSatisfy` fpequalsMat cvxOpty
-    it "HVX's optval should match CVX's optval" $
-      ellipsoidOptval `shouldSatisfy` fpequals cvxOptval
+  describe "Verify that HVX matches CVX for huber/berhu" $ do
+    it "Verify that HVX subgrad matches CVX for huber/berhu" $
+      (subgradOptval `shouldSatisfy` fpequalsApprox cvxOptval)
+    it "Verify that HVX ellipsoid matches CVX for huber/berhu" $
+      ellipsoidOptval `shouldSatisfy` fpequalsApprox cvxOptval
 
 main :: IO ()
 main = hspec spec
