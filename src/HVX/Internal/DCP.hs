@@ -58,10 +58,9 @@ type family FlipMon m where
 type family ApplyVex vf mf ve me where
   ApplyVex vf      Const  ve      me    = Affine
   ApplyVex vf      mf     ve      Const = Affine
-  ApplyVex Affine  mf     Affine  me    = Affine
+  ApplyVex vf      mf     Affine  me    = vf
   ApplyVex Affine  Nondec ve      me    = ve
   ApplyVex Affine  Noninc ve      me    = FlipVex ve
-  ApplyVex vf      mf     Affine  me    = vf
   ApplyVex v       Nondec v       me    = v
   ApplyVex Convex  Noninc Concave me    = Convex
   ApplyVex Concave Noninc Convex  me    = Concave
