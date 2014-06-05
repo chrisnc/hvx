@@ -3,13 +3,15 @@ HVX
 Disciplined Convex Programming and Symbolic Subdifferentiation in Haskell
 -------------------------------------------------------------------------
 
-This is a snapshot of the HVX package that is compatible with GHC version
-7.6.3, which is included with Haskell Platform version 2013.2.0.0.  If you
-would like the most recent version of HVX, please see (TODO), which has the
-most recent version of the code, but unfortunately requires GHC version 7.8.2.
+This is the preferred (newest) version of HVX. An older version (compatible with
+GHC >=7.6.3) is available at https://github.com/chrisnc/hvx-ghc-763.
+
+This version requires GHC >=7.8.2 because it uses closed type families. Until
+GHC 7.8.2 becomes more widely adopted by the various package managers this means
+that users will probably have to install GHC 7.8.2 themselves.
 
 To install HVX:
- - Install the Haskell Platform: http://www.haskell.org/platform/
+ - Install GHC 7.8.2: https://www.haskell.org/ghc/docs/6.10.1/html/users_guide/installing-bin-distrib.html
  - Install your operating system's LAPACK and GSL packages
  - ./install.sh (no sudo needed)
 
