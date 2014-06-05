@@ -7,10 +7,13 @@ import System.Exit
 import System.FilePath
 import System.Process
 
+buildDir :: FilePath
+buildDir = "dist" </> "dcptests"
+
 compileCmd :: Bool -> String -> String
-compileCmd True = (++)
-  "ghc -isrc -no-user-package-db -package-db .cabal-sandbox/*-packages.conf.d "
-compileCmd False = ("ghc -isrc " ++)
+compileCmd True  = (++) $
+  "ghc -isrc -outputdir " ++ buildDir ++ " -no-user-package-db -package-db .cabal-sandbox/*-packages.conf.d "
+compileCmd False = (++) $ "ghc -isrc -outputdir" ++ buildDir ++ " "
 
 dcpTestsDir :: FilePath
 dcpTestsDir = "test" </> "DcpTests"
@@ -36,6 +39,7 @@ showExitCodeAndPath shouldPass code path = codeStr ++ " " ++ path
 
 main :: IO ExitCode
 main = do
+  createDirectoryIfMissing True buildDir
   inSandbox <- doesFileExist "cabal.sandbox.config"
 
   putStrLn "Exit codes for DCP tests that should successfully typecheck:"
