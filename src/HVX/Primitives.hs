@@ -2,6 +2,8 @@
 {-# LANGUAGE FlexibleContexts #-}
 
 module HVX.Primitives
+-- TODO(mh): Currently primitives that should generate implicit constraints are
+-- unsupported. The should be supported shortily. (2014-06-04)
   ( apply
   , hadd
   , (+~)

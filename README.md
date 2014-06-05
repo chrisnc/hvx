@@ -16,4 +16,5 @@ To install HVX:
 See the examples directory for ways to use this package.
 
 Run the demo with:
-ghci examples/demo.hs
+
+    ghci examples/demo.hs

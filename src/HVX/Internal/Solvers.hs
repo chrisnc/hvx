@@ -3,8 +3,10 @@ module HVX.Internal.Solvers
   , decNonSumStep
   , subgradMinimize
   , subgradMaximize
+  , subgradLoop
   , ellipsoidMinimize
   , ellipsoidMaximize
+  , ellipsoidLoop
   ) where
 
 import Data.List

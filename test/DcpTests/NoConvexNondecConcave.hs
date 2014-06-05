@@ -1,4 +1,4 @@
-module HVX.DcpTests.ConvexNondecConcaveDisallowed where
+module HVX.DcpTests.NoConvexNondecConcave where
 
 import HVX
 
@@ -6,5 +6,4 @@ main :: IO ()
 main = do
   let x = EVar "x"
       _ = hexp $ hlog x
-      _ = logsumexp $ hlog x
   return ()
