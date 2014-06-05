@@ -2,13 +2,11 @@
 
 module HVX.BlackBoxTests.HuberTestSpec where
 
-import Data.Maybe
 import Test.Hspec
 import Numeric.LinearAlgebra
 import Numeric.LinearAlgebra.Util (zeros)
 
 import HVX
-import HVX.Internal.Matrix
 import HVX.Internal.TestUtil
 
 -- Problem definition.
@@ -55,10 +53,10 @@ cvxOptval = 0.404882
 
 -- Verify that HVX matches CVX.
 spec :: Spec
-spec = do
+spec =
   describe "Verify that HVX matches CVX for huber/berhu" $ do
     it "Verify that HVX subgrad matches CVX for huber/berhu" $
-      (subgradOptval `shouldSatisfy` fpequalsApprox cvxOptval)
+      subgradOptval `shouldSatisfy` fpequalsApprox cvxOptval
     it "Verify that HVX ellipsoid matches CVX for huber/berhu" $
       ellipsoidOptval `shouldSatisfy` fpequalsApprox cvxOptval
 
