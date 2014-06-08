@@ -83,6 +83,8 @@ type family AddVex v1 v2 where
 
 -- determines the monotonicity of the sum of two expressions
 -- "newexpr = e1 +~ e2"
+-- TODO(mh): is it worth expanding this table so that types will always have to
+-- be monotonicities? (2014-06-07)
 type family AddMon m1 m2 where
   AddMon m1     Const  = m1
   AddMon Const  m2     = m2
