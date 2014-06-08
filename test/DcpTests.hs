@@ -11,9 +11,12 @@ buildDir :: FilePath
 buildDir = "dist" </> "dcptests"
 
 compileCmd :: Bool -> String -> String
-compileCmd True  = (++) $
-  "ghc -isrc -outputdir " ++ buildDir ++ " -no-user-package-db -package-db .cabal-sandbox/*-packages.conf.d "
-compileCmd False = (++) $ "ghc -isrc -outputdir" ++ buildDir ++ " "
+compileCmd True  = (++) $ rmCmd ++
+  "; ghc -isrc -outputdir " ++ buildDir ++ " -no-user-package-db -package-db .cabal-sandbox/*-packages.conf.d "
+compileCmd False = (++) $ rmCmd ++ "; ghc -isrc -outputdir" ++ buildDir ++ " "
+
+rmCmd :: String
+rmCmd = "rm -rf " ++ buildDir
 
 dcpTestsDir :: FilePath
 dcpTestsDir = "test" </> "DcpTests"

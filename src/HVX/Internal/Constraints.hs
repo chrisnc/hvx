@@ -1,3 +1,4 @@
+{-# OPTIONS_GHC -fno-warn-missing-signatures #-}
 {-# LANGUAGE FlexibleContexts #-}
 
 module HVX.Internal.Constraints
@@ -21,20 +22,30 @@ instance CanConstrain Affine
 -- | lhs <= rhs
 -- becomes
 -- max(lhs - rhs) <= 0
-leq :: (Vex vl, Vex vr, Mon ml, Mon mr,
-        Mon (ApplyMon Noninc mr),
-        Mon (AddMon ml (ApplyMon Noninc mr)),
-        Vex (ApplyVex Affine Noninc vr mr),
-        Vex (AddVex vl (ApplyVex Affine Noninc vr mr))) =>
-       Expr vl ml -> Expr vr mr -> Constraint
+leq :: ( Vex vl, Vex vr, Mon ml, Mon mr
+        , Mon (ApplyMon Noninc mr)
+        , Mon (AddMon ml (ApplyMon Noninc mr))
+        , Vex (ApplyVex Affine Noninc vr mr)
+        , Vex (AddVex vl (ApplyVex Affine Noninc vr mr))
+        , CanConstrain
+            (ApplyVex Convex Nondec
+              (AddVex vl (ApplyVex Affine Noninc vr mr))
+              (AddMon vl (ApplyMon Noninc mr)))
+        ) =>
+        Expr vl ml -> Expr vr mr -> Constraint
 leq lhs rhs = EFun Max (lhs +~ neg rhs)
 
 infix 4 <=~
-(<=~) :: (Vex vl, Vex vr, Mon ml, Mon mr,
-          Mon (ApplyMon Noninc mr),
-          Mon (AddMon ml (ApplyMon Noninc mr)),
-          Vex (ApplyVex Affine Noninc vr mr),
-          Vex (AddVex vl (ApplyVex Affine Noninc vr mr))) =>
+(<=~) :: ( Vex vl, Vex vr, Mon ml, Mon mr
+         , Mon (ApplyMon Noninc mr)
+         , Mon (AddMon ml (ApplyMon Noninc mr))
+         , Vex (ApplyVex Affine Noninc vr mr)
+         , Vex (AddVex vl (ApplyVex Affine Noninc vr mr))
+         , CanConstrain
+             (ApplyVex Convex Nondec
+               (AddVex vl (ApplyVex Affine Noninc vr mr))
+               (AddMon vl (ApplyMon Noninc mr)))
+         ) =>
          Expr vl ml -> Expr vr mr -> Constraint
 (<=~) = leq
 
