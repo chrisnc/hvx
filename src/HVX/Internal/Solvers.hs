@@ -1,3 +1,6 @@
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE KindSignatures #-}
+{-# LANGUAGE DataKinds #-}
 module HVX.Internal.Solvers
   ( constStep
   , decNonSumStep
@@ -14,6 +17,7 @@ import Data.Ord
 import Data.Maybe
 import Numeric.LinearAlgebra
 
+import HVX.Primitives (neg)
 import HVX.Internal.Constraints
 import HVX.Internal.DCP
 import HVX.Internal.Matrix
@@ -21,13 +25,9 @@ import HVX.Internal.Primitives
 import HVX.Internal.SymbolicSubgrad
 import HVX.Internal.Util
 
-class CanMinimize vex
+class ValidVex vex => CanMinimize (vex :: Vex)
 instance CanMinimize Affine
 instance CanMinimize Convex
-
-class CanMaximize vex
-instance CanMaximize Affine
-instance CanMaximize Concave
 
 -- | Constant step size.
 constStep :: Double -> Int -> Double
@@ -48,7 +48,7 @@ subgradMinimize :: CanMinimize vex =>
 subgradMinimize = subgradLoop 1
 
 -- | Use subgradient method to solve a maximization problem.
-subgradMaximize :: CanMaximize vex =>
+subgradMaximize :: CanMinimize (ApplyVex Affine Noninc vex mon) =>
      Expr vex mon     -- ^ Objective to maximize.
   -> [Constraint]     -- ^ Constraints on maximization problem.
   -> (Int -> Double)  -- ^ Stepsize function.
@@ -56,7 +56,7 @@ subgradMaximize :: CanMaximize vex =>
   -> Vars             -- ^ Variables and their starting values.
   -> (Vars, Double)   -- ^ Optimal variable values and optimal objective value.
 subgradMaximize objective constraints stepFun maxItr vars = (fst result, negate $ snd result)
-  where result = subgradLoop 1 (EFun Neg objective) constraints stepFun maxItr vars
+  where result = subgradLoop 1 (neg objective) constraints stepFun maxItr vars
 
 -- | Subgradient solver that minimizes an expression subject to constraints.
 subgradLoop :: Int -> Expr vex mon -> [Constraint] -> (Int -> Double) -> Int -> Vars
@@ -90,7 +90,7 @@ ellipsoidMinimize objective constraints varsizes tol radius =
     where soids = map (\(name,n) -> (name, zeroVec n, scale radius $ ident n)) varsizes
 
 -- | Use ellipsoid method to solve a maximization problem.
-ellipsoidMaximize :: CanMaximize vex =>
+ellipsoidMaximize :: CanMinimize (ApplyVex Affine Noninc vex mon) =>
      Expr vex mon            -- ^ Objective to maximize.
   -> [Constraint]            -- ^ Constraints on maximization problem.
   -> [(Var,Int)]             -- ^ Variable names and their sizes.
@@ -98,7 +98,7 @@ ellipsoidMaximize :: CanMaximize vex =>
   -> Double                  -- ^ Radius to seed initial sphere with.
   -> (Vars, Double, Double)  -- ^  Optimal variable values, lower bound, and upper bound.
 ellipsoidMaximize objective constraints varsizes tol radius = (optvars, negate ubound, negate lbound)
-  where (optvars, lbound, ubound) = ellipsoidLoop (EFun Neg objective) constraints tol soids (-infinity) infinity
+  where (optvars, lbound, ubound) = ellipsoidLoop (neg objective) constraints tol soids (-infinity) infinity
         soids = map (\(name,n) -> (name, zeroVec n, scale radius $ ident n)) varsizes
 
 -- | Ellipsoid method solver that minimizes an expression subject to constraints.
