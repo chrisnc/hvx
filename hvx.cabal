@@ -6,6 +6,7 @@ author             : Chris Copeland and Michael Haggblade
 category           : Math
 build-type         : Simple
 cabal-version      : >=1.20
+tested-with        : GHC == 7.8.2
 
 library
   exposed-modules  : HVX
@@ -18,8 +19,14 @@ library
                    , HVX.Internal.SymbolicSubgrad
                    , HVX.Internal.TestUtil
                    , HVX.Internal.Util
-  other-extensions : GADTs, TypeFamilies, FlexibleContexts
-  build-depends    : base < 5
+  other-extensions : CPP
+                     DataKinds
+                     FlexibleContexts
+                     GADTs
+                     KindSignatures
+                     TypeFamilies
+  -- closed type families need ghc>=7.8 which has base==4.7
+  build-depends    : base < 5 && >= 4.7
                    , QuickCheck > 2.5
                    , hmatrix
   hs-source-dirs   : src
@@ -32,11 +39,16 @@ test-suite haskell-tests
                    , QuickCheck > 2.5
                    , hspec
                    , hmatrix
-                   , hvx
-  hs-source-dirs   : test
+  hs-source-dirs   : test, src
   main-is          : Spec.hs
   default-language : Haskell2010
   ghc-options      : -Wall
+
+  -- tests/SymbolicSubgradSpec.hs tests gradients of
+  -- functions that do not follow the hvx
+  -- rules. This cpp definition removes a constraint
+  -- that would cause a compile failure.
+  cpp-options      : -DDISABLE_EXPR_CXT
 
 test-suite shell-tests
   type             : exitcode-stdio-1.0

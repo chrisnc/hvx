@@ -1,4 +1,4 @@
-module HVX.DcpTests.OkXAffine where
+module HVX.DcpTests.NoConvexGeq where
 
 import Numeric.LinearAlgebra
 import Numeric.LinearAlgebra.Util

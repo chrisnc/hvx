@@ -1,3 +1,6 @@
+{-# LANGUAGE CPP #-}
+{-# LANGUAGE KindSignatures #-}
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE GADTs #-}
 
 module HVX.Internal.Primitives
@@ -20,8 +23,16 @@ type Var = String
 data Expr vex mon where
   EConst :: Mat -> Expr Affine Const
   EVar   :: Var -> Expr Affine Nondec
-  EFun   :: Fun v1 m1 -> Expr v2 m2 -> Expr vex mon
-  EAdd   :: Expr v1 m1 -> Expr v2 m2 -> Expr vex mon
+  EFun   :: 
+#ifndef DISABLE_EXPR_CXT
+      ValidVex vex => 
+#endif
+      Fun v1 m1 -> Expr v2 m2 -> Expr vex mon
+  EAdd   ::
+#ifndef DISABLE_EXPR_CXT
+      ValidVex vex => 
+#endif
+    Expr v1 m1 -> Expr v2 m2 -> Expr vex mon
 
 instance Show (Expr vex mon) where
   show (EConst mat) = show mat
@@ -29,10 +40,10 @@ instance Show (Expr vex mon) where
   show (EFun   f a) = show f ++ "(" ++ show a ++ ")"
   show (EAdd   a b) = show a ++ " + " ++ show b
 
-getProperties :: (Vex vex, Mon mon) => Expr vex mon -> String
+getProperties :: (GetVex vex, GetMon mon) => Expr vex mon -> String
 getProperties expr = getVex expr ++ " " ++ getMon expr
 
-data Fun vex mon where
+data Fun (vex :: Vex) (mon :: Mon) where
   Mul                :: Mat -> Fun Affine Nonmon
   Abs                :: Fun Convex Nonmon
   Neg                :: Fun Affine Noninc
