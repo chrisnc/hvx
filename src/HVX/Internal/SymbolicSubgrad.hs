@@ -2,8 +2,7 @@
 
 module HVX.Internal.SymbolicSubgrad where
 
-import Numeric.LinearAlgebra hiding (i)
-import Numeric.LinearAlgebra.Util
+import Numeric.LinearAlgebra
 
 import HVX.Internal.Matrix
 import HVX.Internal.Primitives
@@ -23,11 +22,11 @@ jacobianWrtVar :: Expr vex mon  -- ^ Expression whose jacobian to take.
   -> Var                        -- ^ Variable to take jacobian with respect to.
   -> Mat                        -- ^ The jacobian.
 jacobianWrtVar (EConst c) vars wrtVar
-    | Just wrtVal <- lookup wrtVar vars = zeros (rows c) (rows wrtVal)
+    | Just wrtVal <- lookup wrtVar vars = konst 0.0 ((rows c), (rows wrtVal))
     | otherwise = error $ "Variable " ++ show wrtVar ++ " not set."
 jacobianWrtVar (EVar var) vars wrtVar
     | var == wrtVar, Just val <- lookup var vars = ident $ rows val
-    | Just val <- lookup var vars, Just wrtVal <- lookup wrtVar vars = zeros (rows val) (rows wrtVal)
+    | Just val <- lookup var vars, Just wrtVal <- lookup wrtVar vars = konst 0.0 ((rows val), (rows wrtVal))
     | otherwise = error $ "Variable " ++ show var ++ " or " ++ show wrtVar ++ " not set."
 -- Chain rule: ddx f(e) = dde f * ddx e
 jacobianWrtVar (EFun f e) vars var = dde_f <> ddx_e

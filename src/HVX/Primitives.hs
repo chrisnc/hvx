@@ -28,8 +28,8 @@ module HVX.Primitives
   , powBaseP1InfNotInt
   ) where
 
-import Numeric.LinearAlgebra hiding (i)
-import Numeric.LinearAlgebra.LAPACK
+import Numeric.LinearAlgebra
+import Numeric.LinearAlgebra.HMatrix (eigSH')
 
 import HVX.Internal.DCP
 import HVX.Internal.Matrix
@@ -112,8 +112,8 @@ quadform :: (ApplyVex Convex Nonmon Affine m1 ~ v2, ValidVex v2)
   => Expr Affine Const -> Expr Affine m1 -> Expr v2 (ApplyMon Nonmon m1)
 quadform (EConst a) e
   | rows a == cols a
-    && fpequalsMat a (trans a)
-    && 0 <= maxElement (eigOnlyS a) = apply (Quadform a) e
+    && fpequalsMat a (tr a)
+    && 0 <= (maxElement.fst.eigSH' $ a) = apply (Quadform a) e -- we have checked that the matrix being passed in is Hermitian, so it's safe to use eigSH'.
   | otherwise = error "Matrices in quadratic forms must be positive semidefinite."
 quadform _ _ = error "The matrix sandwitched by the quadratic form must be constant."
 
