@@ -4,10 +4,8 @@ module HVX.BlackBoxTests.ManyvarTestSpec where
 
 import Test.Hspec
 import Numeric.LinearAlgebra
-import Numeric.LinearAlgebra.Util (ones, zeros)
 
 import HVX
-import HVX.Internal.TestUtil
 
 -- Problem definition.
 nx = 2
@@ -31,9 +29,9 @@ d = EConst $ (3><1)
 x = EVar "x"
 y = EVar "y"
 z = EVar "z"
-const10nx = EConst $ scale 10 $ ones nx 1
-const10ny = EConst $ scale 10 $ ones ny 1
-const01nz = EConst $ scale 0.1 $ ones nz 1
+const10nx = EConst $ scale 10 $ konst 1.0 (nx, 1)
+const10ny = EConst $ scale 10 $ konst 1.0 (ny, 1)
+const01nz = EConst $ scale 0.1 $ konst 1.0 (nz, 1)
 
 subgradAns = subgradMaximize
   ( neg (norm 2 (a *~ x +~ b *~ y +~ c *~ z +~ d))
@@ -43,7 +41,7 @@ subgradAns = subgradMaximize
     , powBaseP01 0.25 x >=~ const10nx
     , powBaseP1InfNotInt 1.75 y <=~ const10ny ]
   (decNonSumStep 100.0) 10
-  [("x", zeros nx 1), ("y", zeros ny 1), ("z", zeros nz 1)]
+  [("x", konst 0.0 (nx, 1)), ("y", konst 0.0 (ny, 1)), ("z", konst 0.0 (nz, 1))]
 
 ellipsoidAns = ellipsoidMaximize
   ( neg (norm 2 (a *~ x +~ b *~ y +~ c *~ z +~ d))

@@ -3,9 +3,8 @@
 module HVX.SymbolicSubgradSpec (main, spec) where
 
 import Test.Hspec
-import Test.QuickCheck hiding ( (><) )
+import Test.QuickCheck hiding ((><))
 import Numeric.LinearAlgebra
-import Numeric.LinearAlgebra.Util hiding (norm)
 
 import HVX.Primitives
 import HVX.Internal.Matrix
@@ -39,7 +38,7 @@ evaluateSpec = describe "evaluate" $ do
             (evaluate (EFun LogSumExp (EVar "x")) [("x", x)])
             (evaluate
               (EFun Log
-                (EFun (Mul (ones 1 n))
+                (EFun (Mul (konst 1.0 (1, n)))
                   (EFun Exp (EVar "x"))))
               [("x", x)])
 
@@ -58,12 +57,12 @@ evaluateSpec = describe "evaluate" $ do
             (norm 1 (EVar "x"))
             [("x", x)])
           (evaluate
-            (EFun (Mul (ones 1 (rows x))) (habs (EVar "x")))
+            (EFun (Mul (konst 1.0 (1, (rows x)))) (habs (EVar "x")))
             [("x", x)])
     it "lpnorm(x, 2)^2 = x^T * x" $ property $
       forAll vectors $
         \x -> fpequalsMat
-          (trans x <> x)
+          (tr' x <> x)
           (evaluate
             (EFun (PowBaseP1InfEven 2) (norm 2 (EVar "x")))
             [("x", x)])
@@ -75,7 +74,7 @@ evaluateSpec = describe "evaluate" $ do
           (evaluate
             (EFun (Quadform (ident $ rows x)) (EVar "x"))
             [("x", x)])
-          (trans x <> x)
+          (tr' x <> x)
 
   describe "pow (base variable)" $ do
     it "(x^a)^(1/a) = x (a non integral, a > 1)" $ property $
@@ -103,7 +102,7 @@ jacobianWrtVarSpec = describe "jacobianWrtVar" $ do
           (EVar "x")
           [("x", x), ("y", y)]
           "y")
-        (zeros (rows x) (rows y))
+        (konst 0.0 ((rows x), (rows y)))
 
   describe "log/exp" $
     it "log(exp(x)) - x has zero jacobian" $ property $
@@ -122,7 +121,7 @@ jacobianWrtVarSpec = describe "jacobianWrtVar" $ do
           (jacobianWrtVar (EFun LogSumExp (EVar "x")) [("x", x)] "x")
           (jacobianWrtVar
             (EFun Log
-              (EFun (Mul (ones 1 (rows x)))
+              (EFun (Mul (konst 1.0 (1, (rows x))))
                 (EFun Exp (EVar "x"))))
             [("x", x)]
             "x")
@@ -135,7 +134,7 @@ jacobianWrtVarSpec = describe "jacobianWrtVar" $ do
             (EAdd (EFun Max (EVar "x")) (EFun Min (EFun Neg (EVar "x"))))
             [("x", x)]
             "x")
-          (trans $ zeroVec $ rows x)
+          (tr' $ zeroVec $ rows x)
 
   describe "lpnorm" $ do
     it "jacobian lpnorm(x, 1) = jacobian sum(abs(x))" $ property $
@@ -146,13 +145,13 @@ jacobianWrtVarSpec = describe "jacobianWrtVar" $ do
             [("x", x)]
             "x")
           (jacobianWrtVar
-            (EFun (Mul (ones 1 (rows x))) (habs (EVar "x")))
+            (EFun (Mul (konst 1.0 (1, (rows x)))) (habs (EVar "x")))
             [("x", x)]
             "x")
     it "jacobian lpnorm(0, 2) = 0" $ property $
       \(Positive n) -> fpequalsMat
         (jacobianWrtVar (norm 2 (EVar "x")) [("x", zeroVec n)] "x")
-        (trans $ zeroVec n)
+        (tr' $ zeroVec n)
 
   describe "quadform" $
     it "jacobian quadform(I, x) = jacobian lpnorm(x, 2)^2" $ property $
