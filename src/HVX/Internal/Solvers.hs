@@ -26,8 +26,8 @@ import HVX.Internal.SymbolicSubgrad
 import HVX.Internal.Util
 
 class ValidVex vex => CanMinimize (vex :: Vex)
-instance CanMinimize Affine
-instance CanMinimize Convex
+instance CanMinimize 'Affine
+instance CanMinimize 'Convex
 
 -- | Constant step size.
 constStep :: Double -> Int -> Double
@@ -48,7 +48,7 @@ subgradMinimize :: CanMinimize vex =>
 subgradMinimize = subgradLoop 1
 
 -- | Use subgradient method to solve a maximization problem.
-subgradMaximize :: CanMinimize (ApplyVex Affine Noninc vex mon) =>
+subgradMaximize :: CanMinimize (ApplyVex 'Affine 'Noninc vex mon) =>
      Expr vex mon     -- ^ Objective to maximize.
   -> [Constraint]     -- ^ Constraints on maximization problem.
   -> (Int -> Double)  -- ^ Stepsize function.
@@ -90,7 +90,7 @@ ellipsoidMinimize objective constraints varsizes tol radius =
     where soids = map (\(name,n) -> (name, zeroVec n, scale radius $ ident n)) varsizes
 
 -- | Use ellipsoid method to solve a maximization problem.
-ellipsoidMaximize :: CanMinimize (ApplyVex Affine Noninc vex mon) =>
+ellipsoidMaximize :: CanMinimize (ApplyVex 'Affine 'Noninc vex mon) =>
      Expr vex mon            -- ^ Objective to maximize.
   -> [Constraint]            -- ^ Constraints on maximization problem.
   -> [(Var,Int)]             -- ^ Variable names and their sizes.

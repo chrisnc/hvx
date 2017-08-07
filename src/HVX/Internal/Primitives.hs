@@ -20,8 +20,8 @@ import HVX.Internal.DCP
 type Var = String
 
 data Expr vex mon where
-  EConst :: Mat -> Expr Affine Const
-  EVar   :: Var -> Expr Affine Nondec
+  EConst :: Mat -> Expr 'Affine 'Const
+  EVar   :: Var -> Expr 'Affine 'Nondec
   EFun   ::
 #ifndef DISABLE_EXPR_CXT
       ValidVex vex =>
@@ -43,23 +43,23 @@ getProperties :: (GetVex vex, GetMon mon) => Expr vex mon -> String
 getProperties expr = getVex expr ++ " " ++ getMon expr
 
 data Fun (vex :: Vex) (mon :: Mon) where
-  Mul                :: Mat -> Fun Affine Nonmon
-  Abs                :: Fun Convex Nonmon
-  Neg                :: Fun Affine Noninc
-  Log                :: Fun Concave Nondec
-  Exp                :: Fun Convex Nondec
-  LogSumExp          :: Fun Convex Nondec
-  Max                :: Fun Convex Nondec
-  Min                :: Fun Concave Nondec
-  Norm               :: Double -> Fun Convex Nonmon
-  Berhu              :: Double -> Fun Convex Nonmon
-  Huber              :: Double -> Fun Convex Nonmon
-  Quadform           :: Mat -> Fun Convex Nonmon
-  PowBaseP0          :: Fun Affine Const
-  PowBaseP01         :: Double -> Fun Concave Nondec
-  PowBaseP1          :: Fun Affine Nondec
-  PowBaseP1InfEven   :: Integer -> Fun Convex Nonmon
-  PowBaseP1InfNotInt :: Double -> Fun Convex Nondec
+  Mul                :: Mat -> Fun 'Affine 'Nonmon
+  Abs                :: Fun 'Convex 'Nonmon
+  Neg                :: Fun 'Affine 'Noninc
+  Log                :: Fun 'Concave 'Nondec
+  Exp                :: Fun 'Convex 'Nondec
+  LogSumExp          :: Fun 'Convex 'Nondec
+  Max                :: Fun 'Convex 'Nondec
+  Min                :: Fun 'Concave 'Nondec
+  Norm               :: Double -> Fun 'Convex 'Nonmon
+  Berhu              :: Double -> Fun 'Convex 'Nonmon
+  Huber              :: Double -> Fun 'Convex 'Nonmon
+  Quadform           :: Mat -> Fun 'Convex 'Nonmon
+  PowBaseP0          :: Fun 'Affine 'Const
+  PowBaseP01         :: Double -> Fun 'Concave 'Nondec
+  PowBaseP1          :: Fun 'Affine 'Nondec
+  PowBaseP1InfEven   :: Integer -> Fun 'Convex 'Nonmon
+  PowBaseP1InfNotInt :: Double -> Fun 'Convex 'Nondec
 
 instance Show (Fun vex mon) where
   show (Mul _) = "mul"

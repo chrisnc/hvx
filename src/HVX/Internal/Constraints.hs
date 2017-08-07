@@ -17,14 +17,14 @@ import HVX.Primitives
 import HVX.Internal.Primitives
 import HVX.Internal.DCP
 
-type Constraint = Expr Convex Nonmon
+type Constraint = Expr 'Convex 'Nonmon
 
 class CanConstrain (v :: Vex) where
     canConstrain :: e (v :: Vex) (m :: Mon) -> e v m
     canConstrain = id
 
-instance CanConstrain Convex
-instance CanConstrain Affine
+instance CanConstrain 'Convex
+instance CanConstrain 'Affine
 
 isConstraint :: Constraint -> Constraint
 isConstraint = id
