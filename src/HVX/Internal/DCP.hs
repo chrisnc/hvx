@@ -61,7 +61,7 @@ type family FlipMon m where
 -- determines the convexity of a function applied to an expression
 -- "newexpr = apply f expr"
 type family ApplyVex vf mf ve me where
-  ApplyVex vf      'Const   ve       me     = 'Affine
+  ApplyVex vf       'Const  ve       me     = 'Affine
   ApplyVex vf       mf      ve       'Const = 'Affine
   ApplyVex vf       mf      'Affine  me     = vf
   ApplyVex 'Affine  'Nondec ve       me     = ve
