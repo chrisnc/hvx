@@ -1,5 +1,5 @@
-import HVX
 import Numeric.LinearAlgebra
+import HVX
 
 -- declare a symbolic variable
 x = EVar "x"
@@ -9,3 +9,6 @@ vars = [("x", (4><1) [0,-3,1,2])]
 myexpr = hmax(habs(x))
 -- compute the subgradient
 mysubgrad = jacobianWrtVar myexpr vars "x"
+
+main :: IO ()
+main = print mysubgrad
