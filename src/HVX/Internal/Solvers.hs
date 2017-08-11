@@ -72,7 +72,7 @@ updateWithSubgrad objective constraints stepSize vars (varname, val) =
   if any isNaN (toList $ flatten g)
     then (varname, val)
     else (varname, val - scale stepSize g)
-      where g = fromMaybe (tr' $ jacobianWrtVar objective vars varname) $
+      where g = fromMaybe (tr $ jacobianWrtVar objective vars varname) $
                           getConstraintSubgrad constraints vars varname
 
 type Soid = (Var, Mat, Mat)
@@ -121,15 +121,15 @@ updateEllipsoid objective constraints vars soid =
   if gpg == 0.0
     then (soid, objgpg)
     else (nsoid, objgpg)
-      where objg = tr' $ jacobianWrtVar objective vars varname
+      where objg = tr $ jacobianWrtVar objective vars varname
             g = fromMaybe objg $ getConstraintSubgrad constraints vars varname
             n = fromIntegral $ rows val
-            gpg = (`atIndex` (0,0)) $ tr' g <> p <> g
-            objgpg = (`atIndex` (0,0)) $ tr' objg <> p <> objg
+            gpg = (`atIndex` (0,0)) $ tr g <> p <> g
+            objgpg = (`atIndex` (0,0)) $ tr objg <> p <> objg
             gtilde = scale (1 / sqrt gpg) g
             nval = val - scale (1 / (n + 1)) (p <> gtilde)
             np = scale (n**2 / (n**2 - 1)) $
-              p - scale (2/(n+1)) (p <> (gtilde <> tr' gtilde) <> p)
+              p - scale (2/(n+1)) (p <> (gtilde <> tr gtilde) <> p)
             (varname, val, p) = soid
             nsoid = (varname, nval, np)
 
@@ -140,6 +140,6 @@ getConstraintSubgrad constraints vars var =
   if null constraints || maxVal < 0.0
     then Nothing
     else Just cg
-      where cg = tr' $ jacobianWrtVar maxConstraint vars var
+      where cg = tr $ jacobianWrtVar maxConstraint vars var
             (maxConstraint, maxVal) = maximumBy (comparing snd) constraintViolations
             constraintViolations = map (\c -> (c, evaluate c vars `atIndex` (0,0))) constraints

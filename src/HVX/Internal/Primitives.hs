@@ -96,7 +96,7 @@ getFun (Berhu m) x =
   cmap (\y -> if abs y <= m then abs y else (abs y ** 2 + m ** 2) / (2 * m)) x
 getFun (Huber m) x = 
   cmap (\y -> if abs y <= m then abs y ** 2 else 2 * m * abs y - m ** 2) x
-getFun (Quadform m) x = tr' x <> m <> x
+getFun (Quadform m) x = tr x <> m <> x
 getFun PowBaseP0 x = konst 1.0 ((rows x), (cols x))
 getFun (PowBaseP01 p) x
   | allMat (0 <=) x = matrixPow p x
@@ -113,12 +113,12 @@ getJacobian Abs x = diagMat $ signum x
 getJacobian Neg x = (-1) * ident (rows x)
 getJacobian Log x = diagMat $ 1 / x
 getJacobian Exp x = diagMat $ exp x
-getJacobian LogSumExp x = tr' $ scale (1 / sumElements (exp x)) $ exp x
-getJacobian Max x = tr' $ ei (rows x) i
+getJacobian LogSumExp x = tr $ scale (1 / sumElements (exp x)) $ exp x
+getJacobian Max x = tr $ ei (rows x) i
   where (i, _) = maxIndex x
-getJacobian Min x = tr' $ ei (rows x) i
+getJacobian Min x = tr $ ei (rows x) i
   where (i, _) = minIndex x
-getJacobian (Norm p) x = tr' $ if x == zeroVec n
+getJacobian (Norm p) x = tr $ if x == zeroVec n
   then
     zeroVec n
   else
@@ -131,7 +131,7 @@ getJacobian (Berhu m) x = diagMat $
   cmap (\y -> if abs y <= m then signum y else y / m) x
 getJacobian (Huber m) x = diagMat $
   cmap (\y -> if abs y <= m then 2 * y else 2 * m * signum y) x
-getJacobian (Quadform m) x = scale 2 $ tr' x <> m
+getJacobian (Quadform m) x = scale 2 $ tr x <> m
 getJacobian PowBaseP0 x = konst 0.0 (n, n)
   where n = rows x
 getJacobian (PowBaseP01 p) x = scale p $ diagMat $ matrixPow (p - 1) x
