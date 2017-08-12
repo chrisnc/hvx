@@ -62,7 +62,7 @@ evaluateSpec = describe "evaluate" $ do
     it "lpnorm(x, 2)^2 = x^T * x" $ property $
       forAll vectors $
         \x -> fpequalsMat
-          (tr' x <> x)
+          (tr x <> x)
           (evaluate
             (EFun (PowBaseP1InfEven 2) (norm 2 (EVar "x")))
             [("x", x)])
@@ -74,7 +74,7 @@ evaluateSpec = describe "evaluate" $ do
           (evaluate
             (EFun (Quadform (ident $ rows x)) (EVar "x"))
             [("x", x)])
-          (tr' x <> x)
+          (tr x <> x)
 
   describe "pow (base variable)" $ do
     it "(x^a)^(1/a) = x (a non integral, a > 1)" $ property $
@@ -134,7 +134,7 @@ jacobianWrtVarSpec = describe "jacobianWrtVar" $ do
             (EAdd (EFun Max (EVar "x")) (EFun Min (EFun Neg (EVar "x"))))
             [("x", x)]
             "x")
-          (tr' $ zeroVec $ rows x)
+          (tr $ zeroVec $ rows x)
 
   describe "lpnorm" $ do
     it "jacobian lpnorm(x, 1) = jacobian sum(abs(x))" $ property $
@@ -151,7 +151,7 @@ jacobianWrtVarSpec = describe "jacobianWrtVar" $ do
     it "jacobian lpnorm(0, 2) = 0" $ property $
       \(Positive n) -> fpequalsMat
         (jacobianWrtVar (norm 2 (EVar "x")) [("x", zeroVec n)] "x")
-        (tr' $ zeroVec n)
+        (tr $ zeroVec n)
 
   describe "quadform" $
     it "jacobian quadform(I, x) = jacobian lpnorm(x, 2)^2" $ property $
