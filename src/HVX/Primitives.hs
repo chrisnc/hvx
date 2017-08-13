@@ -10,6 +10,8 @@ module HVX.Primitives
   , (+~)
   , hmul
   , (*~)
+  , hmulpos
+  , (*~+)
   , habs
   , neg
   , hlog
@@ -53,13 +55,28 @@ infixl 6 +~
 hmul :: (ApplyVex 'Affine 'Nonmon v1 m1 ~ v2, ValidVex v2)
   => Expr 'Affine 'Const -> Expr v1 m1 -> Expr v2 (ApplyMon 'Nonmon m1)
 hmul (EConst a) e = apply (Mul a) e
-hmul _ _ = error "the left argument of a multiply must be a constant"
+hmul _ _ = error "The left argument of a multiply must be a constant"
 
 infixl 7 *~
 (*~) :: (ApplyVex 'Affine 'Nonmon v1 m1 ~ v2, ValidVex v2)
   => Expr 'Affine 'Const -> Expr v1 m1 -> Expr v2 (ApplyMon 'Nonmon m1)
 (*~) (EConst a) e = apply (Mul a) e
-(*~) _ _ = error "the left argument of a multiply must be a constant"
+(*~) _ _ = error "The left argument of a multiply must be a constant"
+
+hmulpos :: (ApplyVex 'Affine 'Nondec v1 m1 ~ v2, ValidVex v2)
+  => Expr 'Affine 'Const -> Expr v1 m1 -> Expr v2 (ApplyMon 'Nondec m1)
+hmulpos (EConst a) e
+  | 0 <= minElement a = apply (MulPos a) e
+  | otherwise = error "The left argument of a left-positive multiply must have non-negative entries"
+hmulpos _ _ = error "The left argument of a left-positive multiply must be a constant"
+
+infixl 7 *~+
+(*~+) :: (ApplyVex 'Affine 'Nondec v1 m1 ~ v2, ValidVex v2)
+  => Expr 'Affine 'Const -> Expr v1 m1 -> Expr v2 (ApplyMon 'Nondec m1)
+(*~+) (EConst a) e
+  | 0 <= minElement a = apply (MulPos a) e
+  | otherwise = error "The left argument of a left-positive multiply must have non-negative entries"
+(*~+) _ _ = error "The left argument of a left-positive multiply must be a constant"
 
 habs :: (ApplyVex 'Convex 'Nonmon v1 m1 ~ v2, ValidVex v2)
   => Expr v1 m1 -> Expr v2 (ApplyMon 'Nonmon m1)

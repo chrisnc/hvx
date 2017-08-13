@@ -11,7 +11,9 @@ module HVX
   , hadd
   , (+~)
   , hmul
+  , hmulpos
   , (*~)
+  , (*~+)
   , habs
   , neg
   , hlog
@@ -48,6 +50,8 @@ module HVX
   -- * check validity without calling an optimizer
   , validVex
   , ApplyVex
+  , ValidVex
+  , ApplyMon
 
   ) where
 

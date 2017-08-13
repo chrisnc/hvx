@@ -44,6 +44,7 @@ getProperties expr = getVex expr ++ " " ++ getMon expr
 
 data Fun (vex :: Vex) (mon :: Mon) where
   Mul                :: Mat -> Fun 'Affine 'Nonmon
+  MulPos             :: Mat -> Fun 'Affine 'Nondec
   Abs                :: Fun 'Convex 'Nonmon
   Neg                :: Fun 'Affine 'Noninc
   Log                :: Fun 'Concave 'Nondec
@@ -63,6 +64,7 @@ data Fun (vex :: Vex) (mon :: Mon) where
 
 instance Show (Fun vex mon) where
   show (Mul _) = "mul"
+  show (MulPos _) = "mulpos"
   show Abs = "abs"
   show Neg = "-"
   show Log = "log"
@@ -82,6 +84,7 @@ instance Show (Fun vex mon) where
 
 getFun :: Fun vex mon -> Mat -> Mat
 getFun (Mul a) x = a <> x
+getFun (MulPos a) x = a <> x
 getFun Abs x = abs x
 getFun Neg x = negate x
 getFun Exp x = exp x
@@ -109,6 +112,7 @@ getFun (PowBaseP1InfNotInt p) x
 
 getJacobian :: Fun vex mon -> Mat -> Mat
 getJacobian (Mul a) _ = a
+getJacobian (MulPos a) _ = a
 getJacobian Abs x = diagMat $ signum x
 getJacobian Neg x = (-1) * ident (rows x)
 getJacobian Log x = diagMat $ 1 / x

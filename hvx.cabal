@@ -1,5 +1,5 @@
 name               : hvx
-version            : 0.3.0.1
+version            : 0.3.1.0
 synopsis           : Solves convex optimization problems with subgradient methods.
 license-file       : LICENSE
 author             : Chris Copeland and Michael Haggblade
