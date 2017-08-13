@@ -26,8 +26,8 @@ import HVX.Internal.SymbolicSubgrad
 import HVX.Internal.Util
 
 class ValidVex vex => CanMinimize (vex :: Vex)
-instance CanMinimize Affine
-instance CanMinimize Convex
+instance CanMinimize 'Affine
+instance CanMinimize 'Convex
 
 -- | Constant step size.
 constStep :: Double -> Int -> Double
@@ -48,7 +48,7 @@ subgradMinimize :: CanMinimize vex =>
 subgradMinimize = subgradLoop 1
 
 -- | Use subgradient method to solve a maximization problem.
-subgradMaximize :: CanMinimize (ApplyVex Affine Noninc vex mon) =>
+subgradMaximize :: CanMinimize (ApplyVex 'Affine 'Noninc vex mon) =>
      Expr vex mon     -- ^ Objective to maximize.
   -> [Constraint]     -- ^ Constraints on maximization problem.
   -> (Int -> Double)  -- ^ Stepsize function.
@@ -63,7 +63,7 @@ subgradLoop :: Int -> Expr vex mon -> [Constraint] -> (Int -> Double) -> Int -> 
   -> (Vars, Double)
 subgradLoop itr objective constraints stepFun maxItr vars =
   if itr >= maxItr || vars == varsNext
-    then (vars, evaluate objective vars @@> (0,0))
+    then (vars, evaluate objective vars `atIndex` (0,0))
     else subgradLoop (itr + 1) objective constraints stepFun maxItr varsNext
       where varsNext = map (updateWithSubgrad objective constraints (stepFun itr) vars) vars
 
@@ -72,7 +72,7 @@ updateWithSubgrad objective constraints stepSize vars (varname, val) =
   if any isNaN (toList $ flatten g)
     then (varname, val)
     else (varname, val - scale stepSize g)
-      where g = fromMaybe (trans $ jacobianWrtVar objective vars varname) $
+      where g = fromMaybe (tr $ jacobianWrtVar objective vars varname) $
                           getConstraintSubgrad constraints vars varname
 
 type Soid = (Var, Mat, Mat)
@@ -90,7 +90,7 @@ ellipsoidMinimize objective constraints varsizes tol radius =
     where soids = map (\(name,n) -> (name, zeroVec n, scale radius $ ident n)) varsizes
 
 -- | Use ellipsoid method to solve a maximization problem.
-ellipsoidMaximize :: CanMinimize (ApplyVex Affine Noninc vex mon) =>
+ellipsoidMaximize :: CanMinimize (ApplyVex 'Affine 'Noninc vex mon) =>
      Expr vex mon            -- ^ Objective to maximize.
   -> [Constraint]            -- ^ Constraints on maximization problem.
   -> [(Var,Int)]             -- ^ Variable names and their sizes.
@@ -111,7 +111,7 @@ ellipsoidLoop objective constraints tol soids lbound ubound =
       where updates = map (updateEllipsoid objective constraints centers) soids
             nsoids = map fst updates
             sqrtgpgsum = sqrt . sum . map snd $ updates
-            objval = evaluate objective centers @@> (0,0)
+            objval = evaluate objective centers `atIndex` (0,0)
             nlbound = max lbound $ objval - sqrtgpgsum
             nubound = min ubound objval
             centers = map (\(name, val, _) -> (name, val)) soids
@@ -121,15 +121,15 @@ updateEllipsoid objective constraints vars soid =
   if gpg == 0.0
     then (soid, objgpg)
     else (nsoid, objgpg)
-      where objg = trans $ jacobianWrtVar objective vars varname
+      where objg = tr $ jacobianWrtVar objective vars varname
             g = fromMaybe objg $ getConstraintSubgrad constraints vars varname
             n = fromIntegral $ rows val
-            gpg = (@@> (0,0)) $ trans g <> p <> g
-            objgpg = (@@> (0,0)) $ trans objg <> p <> objg
+            gpg = (`atIndex` (0,0)) $ tr g <> p <> g
+            objgpg = (`atIndex` (0,0)) $ tr objg <> p <> objg
             gtilde = scale (1 / sqrt gpg) g
             nval = val - scale (1 / (n + 1)) (p <> gtilde)
             np = scale (n**2 / (n**2 - 1)) $
-              p - scale (2/(n+1)) (p <> (gtilde <> trans gtilde) <> p)
+              p - scale (2/(n+1)) (p <> (gtilde <> tr gtilde) <> p)
             (varname, val, p) = soid
             nsoid = (varname, nval, np)
 
@@ -140,6 +140,6 @@ getConstraintSubgrad constraints vars var =
   if null constraints || maxVal < 0.0
     then Nothing
     else Just cg
-      where cg = trans $ jacobianWrtVar maxConstraint vars var
+      where cg = tr $ jacobianWrtVar maxConstraint vars var
             (maxConstraint, maxVal) = maximumBy (comparing snd) constraintViolations
-            constraintViolations = map (\c -> (c, evaluate c vars @@> (0,0))) constraints
+            constraintViolations = map (\c -> (c, evaluate c vars `atIndex` (0,0))) constraints

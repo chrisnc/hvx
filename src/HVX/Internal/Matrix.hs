@@ -13,8 +13,7 @@ module HVX.Internal.Matrix
   , zeroVec
   ) where
 
-import Numeric.LinearAlgebra hiding (i)
-import Numeric.LinearAlgebra.Util
+import Numeric.LinearAlgebra
 
 import HVX.Internal.Util
 
@@ -30,7 +29,7 @@ diagMat :: Mat -> Mat
 diagMat = diag . flatten
 
 ei :: Int -> Int -> Mat
-ei n i = buildMatrix n 1 (\(j, _) -> if i == j then 1 else 0)
+ei n i = assoc (n, 1) 0.0 [((i, 0), 1)]
 
 fpequalsMat :: Mat -> Mat -> Bool
 fpequalsMat a b
@@ -50,7 +49,7 @@ lpnorm p x = sumElements y ** (1/p)
         y = abs x ** pMat
 
 matrixPow :: Double -> Mat -> Mat
-matrixPow p = mapMatrix (** p)
+matrixPow p = cmap (** p)
 
 reduceMat :: ([Double] -> Double) -> Mat -> Mat
 reduceMat f = (1><1) . (:[]) . f . toList . flatten
@@ -59,7 +58,7 @@ scalarMat :: Double -> Mat
 scalarMat x = (1><1) [x]
 
 zeroMat :: Int -> Mat
-zeroMat n = zeros n n
+zeroMat n = konst 0.0 (n, n)
 
 zeroVec :: Int -> Mat
-zeroVec n = zeros n 1
+zeroVec n = konst 0.0 (n, 1)

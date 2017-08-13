@@ -12,8 +12,7 @@ module HVX.Internal.Primitives
   , getProperties
   ) where
 
-import Numeric.LinearAlgebra hiding (i)
-import Numeric.LinearAlgebra.Util hiding (norm)
+import Numeric.LinearAlgebra
 
 import HVX.Internal.Matrix
 import HVX.Internal.DCP
@@ -21,16 +20,16 @@ import HVX.Internal.DCP
 type Var = String
 
 data Expr vex mon where
-  EConst :: Mat -> Expr Affine Const
-  EVar   :: Var -> Expr Affine Nondec
-  EFun   :: 
+  EConst :: Mat -> Expr 'Affine 'Const
+  EVar   :: Var -> Expr 'Affine 'Nondec
+  EFun   ::
 #ifndef DISABLE_EXPR_CXT
-      ValidVex vex => 
+      ValidVex vex =>
 #endif
       Fun v1 m1 -> Expr v2 m2 -> Expr vex mon
   EAdd   ::
 #ifndef DISABLE_EXPR_CXT
-      ValidVex vex => 
+      ValidVex vex =>
 #endif
     Expr v1 m1 -> Expr v2 m2 -> Expr vex mon
 
@@ -44,23 +43,23 @@ getProperties :: (GetVex vex, GetMon mon) => Expr vex mon -> String
 getProperties expr = getVex expr ++ " " ++ getMon expr
 
 data Fun (vex :: Vex) (mon :: Mon) where
-  Mul                :: Mat -> Fun Affine Nonmon
-  Abs                :: Fun Convex Nonmon
-  Neg                :: Fun Affine Noninc
-  Log                :: Fun Concave Nondec
-  Exp                :: Fun Convex Nondec
-  LogSumExp          :: Fun Convex Nondec
-  Max                :: Fun Convex Nondec
-  Min                :: Fun Concave Nondec
-  Norm               :: Double -> Fun Convex Nonmon
-  Berhu              :: Double -> Fun Convex Nonmon
-  Huber              :: Double -> Fun Convex Nonmon
-  Quadform           :: Mat -> Fun Convex Nonmon
-  PowBaseP0          :: Fun Affine Const
-  PowBaseP01         :: Double -> Fun Concave Nondec
-  PowBaseP1          :: Fun Affine Nondec
-  PowBaseP1InfEven   :: Integer -> Fun Convex Nonmon
-  PowBaseP1InfNotInt :: Double -> Fun Convex Nondec
+  Mul                :: Mat -> Fun 'Affine 'Nonmon
+  Abs                :: Fun 'Convex 'Nonmon
+  Neg                :: Fun 'Affine 'Noninc
+  Log                :: Fun 'Concave 'Nondec
+  Exp                :: Fun 'Convex 'Nondec
+  LogSumExp          :: Fun 'Convex 'Nondec
+  Max                :: Fun 'Convex 'Nondec
+  Min                :: Fun 'Concave 'Nondec
+  Norm               :: Double -> Fun 'Convex 'Nonmon
+  Berhu              :: Double -> Fun 'Convex 'Nonmon
+  Huber              :: Double -> Fun 'Convex 'Nonmon
+  Quadform           :: Mat -> Fun 'Convex 'Nonmon
+  PowBaseP0          :: Fun 'Affine 'Const
+  PowBaseP01         :: Double -> Fun 'Concave 'Nondec
+  PowBaseP1          :: Fun 'Affine 'Nondec
+  PowBaseP1InfEven   :: Integer -> Fun 'Convex 'Nonmon
+  PowBaseP1InfNotInt :: Double -> Fun 'Convex 'Nondec
 
 instance Show (Fun vex mon) where
   show (Mul _) = "mul"
@@ -97,8 +96,8 @@ getFun (Berhu m) x =
   cmap (\y -> if abs y <= m then abs y else (abs y ** 2 + m ** 2) / (2 * m)) x
 getFun (Huber m) x = 
   cmap (\y -> if abs y <= m then abs y ** 2 else 2 * m * abs y - m ** 2) x
-getFun (Quadform m) x = trans x <> m <> x
-getFun PowBaseP0 x = ones (rows x) (cols x)
+getFun (Quadform m) x = tr x <> m <> x
+getFun PowBaseP0 x = konst 1.0 ((rows x), (cols x))
 getFun (PowBaseP01 p) x
   | allMat (0 <=) x = matrixPow p x
   | otherwise = error "Cannot raise negative number to power p with 0 < p < 1."
@@ -114,12 +113,12 @@ getJacobian Abs x = diagMat $ signum x
 getJacobian Neg x = (-1) * ident (rows x)
 getJacobian Log x = diagMat $ 1 / x
 getJacobian Exp x = diagMat $ exp x
-getJacobian LogSumExp x = trans $ scale (1 / sumElements (exp x)) $ exp x
-getJacobian Max x = trans $ ei (rows x) i
+getJacobian LogSumExp x = tr $ scale (1 / sumElements (exp x)) $ exp x
+getJacobian Max x = tr $ ei (rows x) i
   where (i, _) = maxIndex x
-getJacobian Min x = trans $ ei (rows x) i
+getJacobian Min x = tr $ ei (rows x) i
   where (i, _) = minIndex x
-getJacobian (Norm p) x = trans $ if x == zeroVec n
+getJacobian (Norm p) x = tr $ if x == zeroVec n
   then
     zeroVec n
   else
@@ -132,8 +131,8 @@ getJacobian (Berhu m) x = diagMat $
   cmap (\y -> if abs y <= m then signum y else y / m) x
 getJacobian (Huber m) x = diagMat $
   cmap (\y -> if abs y <= m then 2 * y else 2 * m * signum y) x
-getJacobian (Quadform m) x = scale 2 $ trans x <> m
-getJacobian PowBaseP0 x = zeros n n
+getJacobian (Quadform m) x = scale 2 $ tr x <> m
+getJacobian PowBaseP0 x = konst 0.0 (n, n)
   where n = rows x
 getJacobian (PowBaseP01 p) x = scale p $ diagMat $ matrixPow (p - 1) x
 getJacobian PowBaseP1 x = ident n

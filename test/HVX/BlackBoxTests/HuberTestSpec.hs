@@ -4,7 +4,6 @@ module HVX.BlackBoxTests.HuberTestSpec where
 
 import Test.Hspec
 import Numeric.LinearAlgebra
-import Numeric.LinearAlgebra.Util (zeros)
 
 import HVX
 import HVX.Internal.TestUtil
@@ -28,13 +27,13 @@ d = EConst $ (n><1)
 
 x = EVar "x"
 y = EVar "y"
-constZeroVector = EConst $ zeros n 1
+constZeroVector = EConst $ konst 0.0 (n, 1)
 
 subgradAns = subgradMinimize
   (hmax $ huber 3 (a *~ x +~ b) +~ berhu 1 (c *~ y +~ d))
   [x +~ y <=~ constZeroVector]
   (decNonSumStep 1.0) 100000
-  [("x", zeros n 1), ("y", zeros n 1)]
+  [("x", konst 0.0 (n, 1)), ("y", konst 0.0 (n, 1))]
 
 ellipsoidAns = ellipsoidMinimize
   (hmax $ huber 3 (a *~ x +~ b) +~ berhu 1 (c *~ y +~ d))
