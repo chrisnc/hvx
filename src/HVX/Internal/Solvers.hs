@@ -16,6 +16,7 @@ import Data.List
 import Data.Ord
 import Data.Maybe
 import Numeric.LinearAlgebra
+import Control.DeepSeq (deepseq)
 
 import HVX.Primitives (neg)
 import HVX.Internal.Constraints
@@ -65,7 +66,7 @@ subgradLoop itr objective constraints stepFun maxItr vars =
   if itr >= maxItr || vars == varsNext
     then (vars, evaluate objective vars `atIndex` (0,0))
     else subgradLoop (itr + 1) objective constraints stepFun maxItr varsNext
-      where varsNext = map (updateWithSubgrad objective constraints (stepFun itr) vars) vars
+      where varsNext = deepseq vars $ map (updateWithSubgrad objective constraints (stepFun itr) vars) vars
 
 updateWithSubgrad :: Expr vex mon -> [Constraint] -> Double -> Vars -> (Var, Mat) -> (Var, Mat)
 updateWithSubgrad objective constraints stepSize vars (varname, val) =
@@ -108,7 +109,7 @@ ellipsoidLoop objective constraints tol soids lbound ubound =
   if ubound - lbound < tol || sqrtgpgsum == 0.0
     then (centers, nlbound, nubound)
     else ellipsoidLoop objective constraints tol nsoids nlbound nubound
-      where updates = map (updateEllipsoid objective constraints centers) soids
+      where updates = deepseq soids $ map (updateEllipsoid objective constraints centers) soids
             nsoids = map fst updates
             sqrtgpgsum = sqrt . sum . map snd $ updates
             objval = evaluate objective centers `atIndex` (0,0)

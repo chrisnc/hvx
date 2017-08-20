@@ -29,6 +29,7 @@ library
   build-depends    : base < 5 && >= 4.7
                    , QuickCheck > 2.5
                    , hmatrix >= 0.18.0.1 && < 0.19
+                   , deepseq >= 1.4.3.0 && < 1.5
   hs-source-dirs   : src
   default-language : Haskell2010
   ghc-options      : -Wall
@@ -39,6 +40,7 @@ test-suite haskell-tests
                    , QuickCheck > 2.5
                    , hspec
                    , hmatrix >= 0.18.0.1 && < 0.19
+                   , deepseq >= 1.4.3.0 && < 1.5
   hs-source-dirs   : test, src
   main-is          : Spec.hs
   default-language : Haskell2010
@@ -56,6 +58,7 @@ test-suite shell-tests
                    , directory
                    , process
                    , filepath
+                   , deepseq >= 1.4.3.0 && < 1.5
   hs-source-dirs   : test
   main-is          : DcpTests.hs
   default-language : Haskell2010
@@ -68,6 +71,7 @@ executable demo
                    , QuickCheck > 2.5
                    , hmatrix >= 0.18.0.1 && < 0.19
                    , hvx
+                   , deepseq >= 1.4.3.0 && < 1.5
   default-language : Haskell2010
   ghc-options      : -Wall
 
@@ -78,5 +82,6 @@ executable subgrad
                    , QuickCheck > 2.5
                    , hmatrix >= 0.18.0.1 && < 0.19
                    , hvx
+                   , deepseq >= 1.4.3.0 && < 1.5
   default-language : Haskell2010
   ghc-options      : -Wall
