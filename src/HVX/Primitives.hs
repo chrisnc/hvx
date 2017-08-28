@@ -66,8 +66,8 @@ hmulpos :: (ApplyVex 'Affine 'Nondec v1 m1 ~ v2, ValidVex v2)
   => Expr 'Affine 'Const -> Expr v1 m1 -> Expr v2 (ApplyMon 'Nondec m1)
 hmulpos (EConst a) e
   | 0 <= minElement a = apply (MulPos a) e
-  | otherwise = error "The left argument of a left-positive multiply must have non-negative entries"
-hmulpos _ _ = error "The left argument of a left-positive multiply must be a constant"
+  | otherwise = error "The left argument of a positive multiply must have non-negative entries"
+hmulpos _ _ = error "The left argument of a positive multiply must be a constant"
 
 infixl 7 *~+
 (*~+) :: (ApplyVex 'Affine 'Nondec v1 m1 ~ v2, ValidVex v2)
